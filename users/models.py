@@ -29,7 +29,7 @@ class User(AbstractUser):
 def add_to_default_group(sender, instance, **kwargs):
     user = instance
     if kwargs["created"]:
-        group = Group.objects.get(name='Respondent')
+        group = Group.objects.get(name='Staff')
         user.groups.add(group)
 
 
@@ -51,20 +51,9 @@ class UserProfile(models.Model):
     subcounty = models.CharField(max_length=50, blank=True)
     constituency = models.CharField(max_length=50, blank=True)
     ward = models.CharField(max_length=50, blank=True)
-    school_gender = models.CharField(max_length=50, blank=True)
-    school_type = models.CharField(max_length=50, blank=True)
-    boys_pop = models.CharField(max_length=50, blank=True)
-    girls_pop = models.CharField(max_length=50, blank=True)
-    total_pop = models.CharField(max_length=50, blank=True)
-    teachers_pop = models.CharField(max_length=50, blank=True)
-    description = models.CharField(max_length=255, blank=True)
-    fb = models.CharField(max_length=50, blank=True)
-    twitter = models.CharField(max_length=50, blank=True)
-    website = models.CharField(max_length=50, blank=True)
-    other = models.CharField(max_length=50, blank=True)
-#     city = models.CharField(max_length=50)
-#      = models.CharField(max_length=5)
-    # photo = models.ImageField(upload_to='uploads', blank=True)
+    employee_gender = models.CharField(max_length=50, blank=True)
+    employee_id_number = models.IntegerField()
+    photo = models.ImageField(upload_to='uploads', blank=True)
 
     def __str__(self):
         return self.user
