@@ -87,3 +87,20 @@ class LoginView(generics.CreateAPIView):
                 'query': querys[0],
             }, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.AllowAny,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UsersProfileViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.AllowAny,)
+    queryset = UserProfile.objects.all()
+    lookup_field = 'user'
+    serializer_class = ProfileSerializer
+
+class RolesViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.AllowAny,)
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
