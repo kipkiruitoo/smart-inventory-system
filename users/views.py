@@ -48,3 +48,42 @@ class RegisterUsersView(generics.CreateAPIView):
             "user_details": querys[0]
         },
             status=status.HTTP_201_CREATED)
+
+class LoginView(generics.CreateAPIView):
+    """
+    POST auth/login/
+    """
+    # This permission class will overide the global permission
+    # class setting
+    permission_classes = (permissions.AllowAny,)
+    # serializer_class = SurveySerializer
+    queryset = User.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email", "")
+        password = request.data.get("password", "")
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            # login saves the user’s ID in the session,
+            # using Django’s session framework.
+            login(request, user)
+            querys = User.objects.filter(email=email).values()
+            print(querys[0])
+
+            groups = serializers.serialize("json",
+                                           (Group.objects.all().filter(user=querys[0]['id'])), fields=('fields'))
+            serializer = TokenSerializer(data={
+                # using drf jwt utility functions to generate a token
+                "token": jwt_encode_handler(
+                    jwt_payload_handler(user)
+                )})
+            serializer.is_valid()
+
+            return Response(data={
+                'message': 'Login successful',
+                # 'groups': groups,
+                'id': querys[0]['id'],
+                'token': serializer.data['token'],
+                'query': querys[0],
+            }, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
