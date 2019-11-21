@@ -23,7 +23,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return self.id
+        return self.username
 
 
 def add_to_default_group(sender, instance, **kwargs):
@@ -52,11 +52,11 @@ class UserProfile(models.Model):
     constituency = models.CharField(max_length=50, blank=True)
     ward = models.CharField(max_length=50, blank=True)
     employee_gender = models.CharField(max_length=50, blank=True)
-    employee_id_number = models.IntegerField()
+    employee_id_number = models.IntegerField(blank=True, null = True)
     photo = models.ImageField(upload_to='uploads', blank=True)
 
     def __str__(self):
-        return self.user
+        return self.name
 
 
 def create_dummy_profile(sender, instance, ** kwargs):

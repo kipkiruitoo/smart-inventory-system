@@ -16,6 +16,10 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ('id', 'name',)
 
+class UserRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'password')
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     groups = GroupSerializer(many=True)

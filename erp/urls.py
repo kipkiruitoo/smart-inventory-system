@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
-# from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_jwt.views import obtain_jwt_token
 
 
 urlpatterns = [
@@ -23,4 +23,5 @@ urlpatterns = [
     re_path('api/', include('users.urls')),
     path('api/password_reset/',
          include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('api-token-auth/', obtain_jwt_token, name='create-token'),
 ]

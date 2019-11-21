@@ -5,7 +5,7 @@ from .models import UserProfile, Role
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login
 from rest_framework_jwt.settings import api_settings
-from .serializers import TokenSerializer, UserSerializer, ProfileSerializer, RoleSerializer
+from .serializers import TokenSerializer, UserSerializer, ProfileSerializer, RoleSerializer, UserRegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
@@ -25,6 +25,7 @@ class RegisterUsersView(generics.CreateAPIView):
     POST auth/register/
     """
     permission_classes = (permissions.AllowAny,)
+    serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
         username = request.data.get("username", "")
@@ -81,7 +82,7 @@ class LoginView(generics.CreateAPIView):
 
             return Response(data={
                 'message': 'Login successful',
-                # 'groups': groups,
+                'groups': groups,
                 'id': querys[0]['id'],
                 'token': serializer.data['token'],
                 'query': querys[0],
@@ -104,3 +105,45 @@ class RolesViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.AllowAny,)
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+
+# Password rest strategy
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    """
+    Handles password reset tokens
+    When a token is created, an e-mail needs to be sent to the user
+    :param sender: View Class that sent the signal
+    :param instance: View Instance that sent the signal
+    :param reset_password_token: Token Model Object
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    # send an e-mail to the user
+    context = {
+        'current_user': reset_password_token.user,
+        'username': reset_password_token.user.username,
+        'email': reset_password_token.user.email,
+        'key': reset_password_token.key,
+        'reset_password_url': "{}?token={}".format(reverse('password_reset:reset-password-request'), reset_password_token.key)
+    }
+
+    # render email text
+    email_html_message = render_to_string(
+        'email/user_reset_password.html', context)
+    email_plaintext_message = render_to_string(
+        'email/user_reset_password.txt', context)
+
+    msg = EmailMultiAlternatives(
+        # title:
+        "Password Reset for {title}".format(
+            title="Asyana Gardens"),
+        # message:
+        email_plaintext_message,
+        # from:
+        "passwords@asyanagardens.com",
+        # to:
+        [reset_password_token.user.email]
+    )
+    msg.attach_alternative(email_html_message, "text/html")
+    msg.send()
